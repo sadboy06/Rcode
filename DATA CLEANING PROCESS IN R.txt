@@ -1,0 +1,97 @@
+#####################################
+#DATA CLEANING PART I################
+#####################################
+getwd()
+
+library(xlsx)
+library(readxl)
+library(writexl)
+
+file.list <- list.files(pattern='*.xlsx')
+
+file.list
+
+df.list <- lapply(file.list, function(i) read_xlsx(i,col_names = F))
+
+data <- do.call("rbind", df.list)
+View(data)
+
+#Changing the column names
+names(data) <- data[1,]
+data <- data[-1,]
+
+#write and continue checking data cleaning in excel
+write_xlsx(data, "sourse-data-combined.xlsx")
+
+#######################################################
+##########DATA CLEANING CONTINUED USING EXCEL##########
+############PROBLEM WERE ENCOUNTERED###################
+#######################################################
+
+#reading the souese combined file
+t<- read_excel("sourse-data-combined.xlsx",col_names = T)
+
+#colnames(data)
+t<-data[!grepl("CANDIDATE NAME", data$`CANDIDATE NAME`),]
+View(t)
+
+#SAving the file
+write_xlsx(t, "sourse-data-combined.xlsx")
+
+
+
+
+#_____________________________________________________________________________________
+# DATA CLEANING PART II##############################################################
+#_____________________________________________________________________________________
+
+#read the file
+t <- read_excel("sourse-data-combined.xlsx",col_names = T)
+
+#Checking column data type
+colnames(t)
+as.data.frame(sapply(t,function(i) class(i)))
+
+#Convert the Pincode and mobile in to numeric field
+t$PINCODE <- as.numeric(t$PINCODE)
+t$MOBILE <-  as.numeric(t$MOBILE)
+
+# convert datetypes as date
+
+#create a extra DOB column
+t$extraDOB <- t$DOB
+t$keepdate <- t$DOB
+
+#convert to numeric
+t$extraDOB<-as.numeric(t$extraDOB)
+
+#convert date
+library(janitor)
+t$extraDOB<-excel_numeric_to_date(t$extraDOB,date_system = "modern")
+
+#change the data types
+library(lubridate)
+t$keepdate <-  mdy(t$keepdate)
+
+
+#THIS STEP CAN DONE IN EXCEL WITH CONCATENATE
+#__________________________________________________________________________________________
+#Covert the NA in to null
+t$extraDOB <- as.character.Date(t$extraDOB)
+t$keepdate <- as.character.Date(t$keepdate)
+
+t$extraDOB[is.na(t$extraDOB)] <- " "
+t$keepdate[is.na(t$keepdate)] <- " "
+
+#contatenate two date new column 
+library(tidyr)
+n<- t %>% unite("dob_new",extraDOB:keepdate,sep = "" ,remove = T, na.rm = T)
+View(n)
+#___________________________________________________________________________________________
+
+#write files 
+library(writexl)
+write_xlsx(n, "cleandata1.xlsx")
+
+
+
