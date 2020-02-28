@@ -31,4 +31,3 @@ df['DOB'] =  pd.to_datetime(df['DOB'])
 df.to_excel (r'C:\Users\Deb\Desktop\test\cleandata.xlsx', index = None, header=True)
 
 
-
