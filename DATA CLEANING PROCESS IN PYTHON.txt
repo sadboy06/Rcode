@@ -1,0 +1,34 @@
+# libraries Imports:
+import os
+import pandas as pd
+
+# List files:
+path = os.getcwd()
+files = os.listdir(path)
+#files
+
+#(3) Pick out 'xlsx' files:
+files_xlsx = [f for f in files if f[-4:] == 'xlsx']
+#files_xlsx
+
+#(4) Initialize empty dataframe:
+df = pd.DataFrame()
+
+#(5) Loop over list of files to append to empty dataframe:
+
+for f in files_xlsx:
+    data = pd.read_excel(f, 'Sheet1')
+    df = df.append(data)
+
+# Checking the column datatype
+print(df.dtypes)
+
+#Changing the data format
+df['DOB'] =  pd.to_datetime(df['DOB'])
+#df
+
+# Write the dataframe
+df.to_excel (r'C:\Users\Deb\Desktop\test\cleandata.xlsx', index = None, header=True)
+
+
+
